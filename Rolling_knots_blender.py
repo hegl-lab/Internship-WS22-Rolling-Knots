@@ -5,6 +5,9 @@ import pip
 #pip.main(['install', 'scipy'])
 from scipy.spatial import ConvexHull
 
+#This code is rewritten from a Matlab code of the same name by Stephen Lucas (http://educ.jmu.edu/~lucassk/),
+# it is developed as part of "Rolling Knots", a student project at the Heidelberg Experimental Geometry Lab.
+#Link to the original paper: https://archive.bridgesmathart.org/2020/bridges2020-367.html
 
 DPC = 10 #Decimal place Comparison
 DPO = 2 #Decimal place output
