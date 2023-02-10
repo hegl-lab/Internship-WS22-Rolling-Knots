@@ -21,7 +21,7 @@ import random
 
 DPC = 10 #Decimal place Comparison
 DPO = 2 #Decimal place output
-MESH_LONG = 800
+MESH_LONG = 300
 MESH_SMALL = 50 
 
 
@@ -219,7 +219,7 @@ class Rolling_Knot:
         else:
             origin[0]=locm[1]
         
-        for i in range(1,2*self.hull_count): # For the rest of the triangles
+        for i in range(1, 2*self.hull_count): # For the rest of the triangles
             # Identify which one has next as a long pair
             j = 0
             done = False
@@ -404,7 +404,7 @@ def sphereint(x0,y0,r0,x1,y1,r1,x2,y2,r2):
 
 def objective_function(parameters):
     #Knot to test for rolling ability
-    test_knot = Rolling_Knot(Morton_Knot(a = parameters[0], z_scale = parameters[1]))
+    test_knot = Rolling_Knot(Morton_Knot(a = parameters[0], z_scale = parameters[1], sgpp = parameters[2]))
     ltr = test_knot.planar_triangles[2*test_knot.hull_count-1]
     norm = max([ltr[1], ltr[3], ltr[5]])
 
@@ -480,7 +480,7 @@ def total_energy(parameter):
     # align_roll und nicht nur com was sich leicht beheben ließe.
         E_tot[t] = E_pot[t] + E_kin[t] + E_rot[t]
 
-def optimize_knot(_a_min = 0.01, _a_max = 0.95, _z_scale_min = 0.20, _z_scale_max = 0.5, _sgpp_min = 0.01, _sgpp_max = 3.0):
+def optimize_knot(_a_min = 0.10, _a_max = 0.95, _z_scale_min = 0.10, _z_scale_max = 100.00, _sgpp_min = 0.10, _sgpp_max = 100.0):
     #https://machinelearningmastery.com/how-to-use-nelder-mead-optimization-in-python/
 
     #Base parameter values are given either by definition (a) or practicality (z).
@@ -501,16 +501,16 @@ def optimize_knot(_a_min = 0.01, _a_max = 0.95, _z_scale_min = 0.20, _z_scale_ma
     pt = [s_a, s_z_scale, s_sgpp]
     
     #Search for a result
-    result = scipy.optimize.minimize(objective_function_2, pt, method='nelder-mead') 
+    result = scipy.optimize.minimize(objective_function, pt, method='nelder-mead') 
     
     #Summarize the result
     #print('Status : %s' % result['message'])
     print(result['x'])
 
-def plot_optimization():
+def plot_objective():
     ra_min = 0.05
-    ra_max = 0.95
-    rz_min = 0.01   #To plot a larger value range the N_MESH value needs to be adjusted. A greater mesh size
+    ra_max = 0.50
+    rz_min = 0.51   #To plot a larger value range the N_MESH value needs to be adjusted. A greater mesh size
     rz_max = 0.99   #is needed for a larger value range.
     L = 60           
 
@@ -523,29 +523,29 @@ def plot_optimization():
     for i in range(0, L):
         for j in range(0, L):
             x = [a[i], z[j]]
-            results[i][j] = objective_function_2(x)
+            results[i][j] = objective_function(x)
 
     fig = plt.figure()
     ax = fig.add_subplot(projection = '3d')
     surf = ax.plot_surface(av, zv, results, cmap = cm.coolwarm, linewidth = 0, antialiased = False)
 
     # Customize the z axis.
-    ax.set_zlim(0.0, 0.262)
+    ax.set_zlim(0.0, 0.0701)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
     ax.set_xlabel("a")
     ax.set_ylabel("z")
-    ax.set_zlabel("Objective Function 2")
+    ax.set_zlabel("Objective Function")
     plt.show()
 
-def plot_optimization_4d():
+def plot_objective_4d():
     ra_min = 0.05
-    ra_max = 0.95
+    ra_max = 0.50
     rz_min = 0.01   
     rz_max = 1.01   
     rsgpp_min = 0.05
-    rsgpp_max = 1.00
+    rsgpp_max = 1.01
     L = 10
 
     a = np.linspace(ra_min, ra_max, L)
@@ -560,14 +560,14 @@ def plot_optimization_4d():
         for j in range(0, L):
             for k in range(0, L):
                 x = [a[i], z[j], sgpp[k]]
-                results[i][j][k] = objective_function_2(x)
+                results[i][j][k] = objective_function(x)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    img = ax.scatter(av, zv, sgppv, c = results, cmap = cm.coolwarm, vmin = 0, vmax = 5.5)
+    img = ax.scatter(av, zv, sgppv, c = results, cmap = cm.coolwarm, vmin = 0, vmax = 0.07)
     cbar = fig.colorbar(img)
-    cbar.set_label("Objective function 2")
+    cbar.set_label("Objective function")
     ax.set_xlabel('a')
     ax.set_ylabel('z')
     ax.set_zlabel('sgpp')
@@ -575,13 +575,13 @@ def plot_optimization_4d():
     plt.show()
 
 def main():
-    #knot = Morton_Knot(0.5189089,  0.06567147)
+    #knot = Morton_Knot(0.5831, 1)
     #rolling_knot = Rolling_Knot(knot)
     #print(rolling_knot.planar_triangles)
     #rolling_knot.plot()
-    #plot_optimization()
-    for i in range(3):
-        optimize_knot()
+    plot_objective_4d()
+    #for i in range(5):
+    #    optimize_knot()
     
     
     
