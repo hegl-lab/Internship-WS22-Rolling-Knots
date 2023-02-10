@@ -101,7 +101,7 @@ class Curve:
             w_2=w_2/np.linalg.norm(w_2)
             w_1=np.cross(w_2, diff)
             for j in range(0, MESH_SMALL):
-                vertices.append(basedir + w_1 * self.r * np.cos(j * theta)
+                vertices.append(basedir + w_1 * self.r * (-1) * np.cos(j * theta)
                                         + w_2 * self.r * np.sin(j * theta))
                                          
         #Faces 
@@ -179,7 +179,7 @@ class Morton_Knot:
             w_1=np.cross(w_2, diff)
             
             for j in range(0, MESH_SMALL):
-                vertices.append(basedir + w_1  * self.r * np.cos(j * theta)
+                vertices.append(basedir + w_1  * self.r * (-1) * np.cos(j * theta)
                                         + w_2  * self.r * np.sin(j * theta))
                                          
         #Faces 
@@ -246,7 +246,7 @@ class Torus:
             basedir = basedir / np.linalg.norm(basedir)
             for j in range(0, MESH_SMALL):
                 temp = basedir * self.R 
-                vertices.append(temp + basedir * self.r * np.cos(j * theta)
+                vertices.append(temp + basedir * self.r * (-1) * np.cos(j * theta)
                                          + n_v * self.r * np.sin(j * theta))
         #Faces 
         for i in range(0, MESH_LONG):
@@ -300,7 +300,7 @@ def delete_screen():
 def main():
     delete_screen()
     
-    knot = Morton_Knot(a = 0.1570, z_scale = 0.2192, sgpp = 1.6079, scaling_factor = 200, small_radius = 1.0, name = "Tollert Knoten")
+    knot = Morton_Knot(a = 0.1473, z_scale = 0.3592, sgpp = 1.0, scaling_factor = 5, small_radius = 0.3, name = "Tollert Knoten")
 
     #---Morton_Knot.plot() test
     knot.plot()
