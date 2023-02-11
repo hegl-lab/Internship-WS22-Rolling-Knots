@@ -22,7 +22,7 @@ import random
 DPC = 10 #Decimal place Comparison
 DPO = 2 #Decimal place output
 MESH_LONG = 300
-MESH_SMALL = 50 
+MESH_SMALL = 50
 
 
 class Flatcircle:
@@ -427,18 +427,9 @@ def objective_function_2(parameters):
 
     d_y = max(test_knot.center_of_mass[:,2]) - min(test_knot.center_of_mass[:,2])
     d_z = max(test_knot.center_of_mass[:,0]) - min(test_knot.center_of_mass[:,0])
-    sum_y = sum(test_knot.center_of_mass[:,2])
-    sum_z = sum(test_knot.center_of_mass[:,0])
-    length_y = len(test_knot.center_of_mass[:,2])
-    length_z = len(test_knot.center_of_mass[:,0])
 
     #Basic candidate -- We add the maximal lateral and vertical deviations together 
-    #(both adjusted with the average value)
     basic_cand = np.abs(d_y) + np.abs(d_z*4)
-
-    #There is some merit to using this, adjusted, version for visualisation
-    #as it exhibits a better, smoother behaviour.
-    #basic_cand = d_y/(sum_y/length_y) + pow((d_z/(sum_z/length_z)), 5)*4
     
     return basic_cand/norm
 
@@ -480,7 +471,7 @@ def total_energy(parameter):
     # align_roll und nicht nur com was sich leicht beheben ließe.
         E_tot[t] = E_pot[t] + E_kin[t] + E_rot[t]
 
-def optimize_knot(_a_min = 0.10, _a_max = 0.95, _z_scale_min = 0.10, _z_scale_max = 100.00, _sgpp_min = 0.10, _sgpp_max = 100.0):
+def optimize_knot(_a_min = 0.15, _a_max = 0.19, _z_scale_min = 0.15, _z_scale_max = 0.19, _sgpp_min = 0.15, _sgpp_max = 0.5):
     #https://machinelearningmastery.com/how-to-use-nelder-mead-optimization-in-python/
 
     #Base parameter values are given either by definition (a) or practicality (z).
@@ -501,7 +492,7 @@ def optimize_knot(_a_min = 0.10, _a_max = 0.95, _z_scale_min = 0.10, _z_scale_ma
     pt = [s_a, s_z_scale, s_sgpp]
     
     #Search for a result
-    result = scipy.optimize.minimize(objective_function, pt, method='nelder-mead') 
+    result = scipy.optimize.minimize(objective_function_2, pt, method='nelder-mead') 
     
     #Summarize the result
     #print('Status : %s' % result['message'])
@@ -579,9 +570,9 @@ def main():
     #rolling_knot = Rolling_Knot(knot)
     #print(rolling_knot.planar_triangles)
     #rolling_knot.plot()
-    plot_objective_4d()
-    #for i in range(5):
-    #    optimize_knot()
+    #plot_objective_4d()
+    for i in range(5):
+        optimize_knot()
     
     
     
