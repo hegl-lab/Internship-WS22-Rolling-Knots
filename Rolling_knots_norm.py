@@ -434,7 +434,7 @@ def objective_function_2(parameters):
     
     return basic_cand/norm
 
-def optimize_knot(_a_min = 0.96, _a_max = 0.99, _z_scale_min = 2.495, _z_scale_max = 4.0, _sgpp_min = 0.4, _sgpp_max = 0.9):
+def optimize_knot(_a_min = 0.5831, _a_max = 0.5831, _z_scale_min = 1.0, _z_scale_max = 1.0, _sgpp_min = -0.85, _sgpp_max = -3.1):
     #https://machinelearningmastery.com/how-to-use-nelder-mead-optimization-in-python/
 
     #Base parameter values are given either by definition (a) or practicality (z).
@@ -529,7 +529,7 @@ def plot_objective_4d():
     plt.show()
 
 def main():
-    knot = Morton_Knot(0.45613167, 0.4631802,  1.40826749)
+    knot = Morton_Knot(0.3831,  0.6, -1.409)
     rolling_knot = Rolling_Knot(knot)
     #print(rolling_knot.planar_triangles)
     rolling_knot.plot()
