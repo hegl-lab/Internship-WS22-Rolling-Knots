@@ -21,7 +21,7 @@ import random
 
 DPC = 10 #Decimal place Comparison
 DPO = 2 #Decimal place output
-MESH_LONG = 300
+MESH_LONG = 350
 MESH_SMALL = 50
 
 
@@ -95,7 +95,7 @@ class Morton_Knot: #Parametrization from Morton's paper on tritangentless knots.
         self.scale = z_scale
         self.sgpp = sgpp   #Stereographic projection parameter
         self.b = np.sqrt(1 - a ** 2)
-        c = self.a / (1 + self.b)
+        c = self.a / (1 + self.b) 
         R = 1 / (1 + self.b)
         r = self.b / (1 + self.b)
         denom = self.sgpp - self.b * np.sin(self.q * t)
@@ -417,6 +417,7 @@ def objective_function(parameters):
         v_trans[t,:] = test_knot.center_of_mass[t+1,:]-test_knot.center_of_mass[t,:] # translational
         # velocity of center of mass
     basic_cand += (max(v_trans[:][0]) - min(v_trans[:][0]))
+
     return basic_cand/norm
 
 def objective_function_2(parameters):
@@ -433,55 +434,17 @@ def objective_function_2(parameters):
     
     return basic_cand/norm
 
-def inertia_tensor(parameter):
-    I = np.zeros((3,3)) # inertia tensor
-    N = MESH_LONG # total number of point masses, should be increased for more accurate results
-    M = 1 #total mass of the knot
-    m = M/N # mass of a single point mass
-    y = test_knot.knot.points # list of arrays that contains the point mass
-    # rotate axis such that rolling direction is x (45°)
-    x = []
-    for n in range(N):
-        x.append(np.array([np.sqrt(2)/2*(y[n][0]-y[n][1]), np.sqrt(2)/2*(y[n][0]+y[n][1]), y[n][2]]))
-    #calc I : I_ij = sum_n=1 to N m_n*(delta_ij*x_n^2-x_i*x_j)
-    for i in range(3):
-        for j in range(3):
-            for n in range(N):
-                if(i==j): #diagonal elements
-                    I[i,j]+=m*(np.linalg.norm(x[n])**2-x[n][i]**2)
-                else: #off diagonal elements
-                    I[i,j]-=m*x[n][i]*x[n][j]
-
-def total_energy(parameter):
-    g = 9.81 #gravitational constant
-    E_tot = np.zeros(T-1) # total energy
-    omega = np.array([0,2*np.pi/T]) # angular velocity
-    E_pot = np.zeros(T-1) # potential energy
-    E_kin = np.zeros(T-1) # kinetic energy
-    E_rot = np.zeros(T-1) # rotational energy
-    for t in range(T-1):
-        E_pot[t] = M*g*test_knot.center_of_mass[t,2]
-        v_trans[t,:] = test_knot.center_of_mass[t+1,:]-test_knot.center_of_mass[t,:] # translational
-    # velocity of center of mass
-        E_kin[t] = 1/2*M*np.linalg.norm(v_trans[t])**2 #1/2*m*np.linalg.norm(np.cross(omega[n],x[n]))**2
-        E_rot[t] = 0 #1/2*np.dot(omega[n],np.dot(I,omega[n])) , hier noch über n summieren ;
-        
-    # wobei E_rot mit der Winkelgeschwindigkeit omega berechnet werden müsste, die sich analog zu
-    # v_trans berechnen ließe aber dafür braucht man die Infos aller Punktpositionen nach jedem
-    # align_roll und nicht nur com was sich leicht beheben ließe.
-        E_tot[t] = E_pot[t] + E_kin[t] + E_rot[t]
-
-def optimize_knot(_a_min = 0.15, _a_max = 0.19, _z_scale_min = 0.15, _z_scale_max = 0.19, _sgpp_min = 0.15, _sgpp_max = 0.5):
+def optimize_knot(_a_min = 0.96, _a_max = 0.99, _z_scale_min = 2.495, _z_scale_max = 4.0, _sgpp_min = 0.4, _sgpp_max = 0.9):
     #https://machinelearningmastery.com/how-to-use-nelder-mead-optimization-in-python/
 
     #Base parameter values are given either by definition (a) or practicality (z).
     #Running the optimization and consequently adjusting the boundaries is a valid method 
     #to finding better solutions.
-    
+
     a_min = _a_min
     a_max = _a_max
     z_scale_min = _z_scale_min
-    z_scale_max = _z_scale_max
+    z_scale_max = _z_scale_max 
     sgpp_min = _sgpp_min
     sgpp_max = _sgpp_max
     s_a = a_min + random.random() * (a_max - a_min)
@@ -492,7 +455,7 @@ def optimize_knot(_a_min = 0.15, _a_max = 0.19, _z_scale_min = 0.15, _z_scale_ma
     pt = [s_a, s_z_scale, s_sgpp]
     
     #Search for a result
-    result = scipy.optimize.minimize(objective_function_2, pt, method='nelder-mead') 
+    result = scipy.optimize.minimize(objective_function, pt, method='nelder-mead') 
     
     #Summarize the result
     #print('Status : %s' % result['message'])
@@ -531,12 +494,12 @@ def plot_objective():
     plt.show()
 
 def plot_objective_4d():
-    ra_min = 0.05
-    ra_max = 0.50
+    ra_min = 0.01
+    ra_max = 0.51
     rz_min = 0.01   
-    rz_max = 1.01   
-    rsgpp_min = 0.05
-    rsgpp_max = 1.01
+    rz_max = 0.51   
+    rsgpp_min = 1.1     #It's important that sgpp > b, otherwise the knot will not be well-defined
+    rsgpp_max = 2.1
     L = 10
 
     a = np.linspace(ra_min, ra_max, L)
@@ -544,7 +507,7 @@ def plot_objective_4d():
     sgpp = np.linspace(rsgpp_min, rsgpp_max, L)
 
     av, zv, sgppv = np.meshgrid(a, z, sgpp)
-
+   
     results = np.zeros((L, L, L))
 
     for i in range(0, L):
@@ -556,7 +519,7 @@ def plot_objective_4d():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    img = ax.scatter(av, zv, sgppv, c = results, cmap = cm.coolwarm, vmin = 0, vmax = 0.07)
+    img = ax.scatter(av, zv, sgppv, c = results, cmap = cm.coolwarm, vmin = 0, vmax = 0.007)
     cbar = fig.colorbar(img)
     cbar.set_label("Objective function")
     ax.set_xlabel('a')
@@ -566,13 +529,13 @@ def plot_objective_4d():
     plt.show()
 
 def main():
-    #knot = Morton_Knot(0.5831, 1)
-    #rolling_knot = Rolling_Knot(knot)
+    knot = Morton_Knot(0.45613167, 0.4631802,  1.40826749)
+    rolling_knot = Rolling_Knot(knot)
     #print(rolling_knot.planar_triangles)
-    #rolling_knot.plot()
+    rolling_knot.plot()
     #plot_objective_4d()
-    for i in range(5):
-        optimize_knot()
+    #for i in range(10):
+    #    optimize_knot()
     
     
     
